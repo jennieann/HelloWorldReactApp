@@ -1,8 +1,18 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types'
+import { findDOMNode } from 'react-dom'
+import { DragSource } from 'react-dnd'
+
 import './HelloWorld.css';
+import { ItemTypes } from './ItemTypes';
 
-
-
+const style = {
+	border: '1px dashed gray',
+	padding: '0.5rem 1rem',
+	marginBottom: '.5rem',
+	backgroundColor: 'white',
+	cursor: 'move',
+}
 
 function collect(connect, monitor) {
   return {
@@ -10,7 +20,17 @@ function collect(connect, monitor) {
     isDragging: monitor.isDragging()
   }
 }
-@DragSource(/* ... */)
+
+const listSource = {
+	beginDrag(props) {
+		return {
+			id: props.id,
+			index: props.index,
+		}
+	},
+}
+
+
 class HelloWorld extends Component {
 
   constructor(props) {
@@ -29,9 +49,10 @@ class HelloWorld extends Component {
   }
 
   render(){
-    const { connectDragSource, isDragging } = this.props;
-    return (
-      <div className="HelloWorld">
+    const { connectDragSource, isDragging, moveCard, connectDropTarget } = this.props;
+    const opacity = isDragging ? 0 : 1
+    return connectDragSource (
+      <div className="HelloWorld" style={{ ...style, opacity }}>
         {this.state.greeting} {this.props.name}
         <br/>
 
@@ -43,4 +64,11 @@ class HelloWorld extends Component {
   }
 };
 
-export default HelloWorld;
+HelloWorld.propTypes = {
+  connectDragSource: PropTypes.func.isRequired,
+
+
+  isDragging: PropTypes.bool.isRequired
+
+};
+export default DragSource(ItemTypes.LISTITEM, listSource, collect)(HelloWorld);
