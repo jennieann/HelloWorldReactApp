@@ -1,34 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types'
-import { findDOMNode } from 'react-dom'
-import { DragSource } from 'react-dnd'
+import {render} from 'react-dom';
+import {SortableElement, arrayMove} from 'react-sortable-hoc';
+
 
 import './HelloWorld.css';
-import { ItemTypes } from './ItemTypes';
 
-const style = {
-	border: '1px dashed gray',
-	padding: '0.5rem 1rem',
-	marginBottom: '.5rem',
-	backgroundColor: 'white',
-	cursor: 'move',
-}
-
-function collect(connect, monitor) {
-  return {
-    connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging()
-  }
-}
-
-const listSource = {
-	beginDrag(props) {
-		return {
-			id: props.id,
-			index: props.index,
-		}
-	},
-}
+const SortableItem = SortableElement(({name, removeGreeting}) => <HelloWorld name={name} removeGreeting={removeGreeting}/>);
 
 
 class HelloWorld extends Component {
@@ -49,26 +26,18 @@ class HelloWorld extends Component {
   }
 
   render(){
-    const { connectDragSource, isDragging, moveCard, connectDropTarget } = this.props;
-    const opacity = isDragging ? 0 : 1
-    return connectDragSource (
-      <div className="HelloWorld" style={{ ...style, opacity }}>
+
+    return  (
+      <div className="HelloWorld">
         {this.state.greeting} {this.props.name}
         <br/>
 
         <button className="frenchify" onClick={this.toggleLanguage}>{this.state.language}</button>
         <button className="remove" onClick={this.removeGreeting}>Remove me!</button>
       </div>
-
     );
   }
 };
 
-HelloWorld.propTypes = {
-  connectDragSource: PropTypes.func.isRequired,
 
-
-  isDragging: PropTypes.bool.isRequired
-
-};
-export default DragSource(ItemTypes.LISTITEM, listSource, collect)(HelloWorld);
+export default SortableItem;

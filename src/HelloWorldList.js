@@ -1,11 +1,25 @@
 import React, { Component } from 'react';
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
+import {SortableContainer, arrayMove} from 'react-sortable-hoc';
 
 import './HelloWorldList.css';
 import HelloWorld from './HelloWorld';
 import AddGreeter from './AddGreeter';
 
+
+const SortableList = SortableContainer(({greetings, removeGreeting}) => {
+  return (
+    <div>
+      {greetings.map((name, index) => (
+        <HelloWorld
+           index={index}
+           key={name}
+           name={name}
+           removeGreeting={removeGreeting}
+         />
+      ))}
+    </div>
+  );
+});
 
 class HelloWorldList extends Component {
   constructor(props) {
@@ -14,8 +28,12 @@ class HelloWorldList extends Component {
     this.addGreeting = this.addGreeting.bind(this);
     this.removeGreeting = this.removeGreeting.bind(this);
   }
-
-  addGreeting(newName){
+  onSortEnd = ({oldIndex, newIndex}) => {
+    this.setState({
+      greetings: arrayMove(this.state.greetings, oldIndex, newIndex),
+    });
+  };
+  addGreeting (newName) {
     this.setState({greetings: [...this.state.greetings, newName]});
   }
 
@@ -35,24 +53,24 @@ class HelloWorldList extends Component {
     this.setState({ greetings: filteredGreetings });
   }
 
-  renderGreetings() {
-    return this.state.greetings.map(name => (
-      <HelloWorld
-        key={name}
-        name={name}
-        removeGreeting={this.removeGreeting}
-      />
-    ));
-  }
+  // renderGreetings() {
+  //   return this.state.greetings.map(name => (
+  //     <HelloWorld
+  //       key={name}
+  //       name={name}
+  //       removeGreeting={this.removeGreeting}
+  //     />
+  //   ));
+  // }
   render(){
     return(
       <div className="HelloWorldList">
         <AddGreeter addGreeting={this.addGreeting}/>
-        {this.renderGreetings()}
+        <SortableList greetings={this.state.greetings} removeGreeting={this.removeGreeting} onSortEnd={this.onSortEnd}/>
       </div>
     )
   }
 }
 
 // export default HelloWorldList;
-export default DragDropContext(HTML5Backend)(HelloWorldList);
+export default (HelloWorldList);
